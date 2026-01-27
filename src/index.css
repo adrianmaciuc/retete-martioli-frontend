@@ -1,0 +1,226 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Turquoise/Teal Primary Palette */
+    --background: 165 23% 97%;
+    --foreground: 170 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 170 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 170 30% 15%;
+
+    /* Primary - Deep Teal */
+    --primary: 173 58% 39%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Light Sage */
+    --secondary: 158 25% 90%;
+    --secondary-foreground: 170 30% 20%;
+
+    --muted: 165 20% 94%;
+    --muted-foreground: 170 15% 45%;
+
+    /* Accent - Warm Coral for highlights */
+    --accent: 15 75% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 165 20% 88%;
+    --input: 165 20% 88%;
+    --ring: 173 58% 39%;
+
+    --radius: 0.75rem;
+
+    /* Custom Recipe App Colors */
+    --teal-50: 166 76% 97%;
+    --teal-100: 167 85% 89%;
+    --teal-200: 168 84% 78%;
+    --teal-300: 171 77% 64%;
+    --teal-400: 173 72% 50%;
+    --teal-500: 173 58% 39%;
+    --teal-600: 175 64% 32%;
+    --teal-700: 175 69% 26%;
+    --teal-800: 176 69% 22%;
+    --teal-900: 176 61% 19%;
+
+    --sage: 158 25% 85%;
+    --cream: 43 45% 96%;
+    --coral: 15 75% 60%;
+    --coral-light: 15 80% 70%;
+
+    /* Typography */
+    --font-display: "Playfair Display", serif;
+    --font-body: "Inter", sans-serif;
+    --font-recipe: "Crimson Text", serif;
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(173 58% 39% / 0.15);
+    --shadow-card: 0 8px 30px -8px hsl(173 58% 39% / 0.12);
+    --shadow-lifted: 0 20px 40px -12px hsl(173 58% 39% / 0.25);
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(173 58% 39%) 0%,
+      hsl(158 45% 45%) 100%
+    );
+    --gradient-card: linear-gradient(
+      180deg,
+      hsl(0 0% 100%) 0%,
+      hsl(165 23% 98%) 100%
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(165 23% 97%) 0%,
+      hsl(0 0% 100%) 100%
+    );
+
+    --sidebar-background: 165 23% 97%;
+    --sidebar-foreground: 170 30% 15%;
+    --sidebar-primary: 173 58% 39%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 158 25% 90%;
+    --sidebar-accent-foreground: 170 30% 20%;
+    --sidebar-border: 165 20% 88%;
+    --sidebar-ring: 173 58% 39%;
+  }
+
+  .dark {
+    --background: 176 40% 8%;
+    --foreground: 165 20% 95%;
+
+    --card: 176 35% 12%;
+    --card-foreground: 165 20% 95%;
+
+    --popover: 176 35% 12%;
+    --popover-foreground: 165 20% 95%;
+
+    --primary: 171 77% 54%;
+    --primary-foreground: 176 40% 8%;
+
+    --secondary: 175 30% 18%;
+    --secondary-foreground: 165 20% 90%;
+
+    --muted: 175 25% 16%;
+    --muted-foreground: 165 15% 60%;
+
+    --accent: 15 70% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 175 25% 20%;
+    --input: 175 25% 20%;
+    --ring: 171 77% 54%;
+
+    --sidebar-background: 176 35% 10%;
+    --sidebar-foreground: 165 20% 95%;
+    --sidebar-primary: 171 77% 54%;
+    --sidebar-primary-foreground: 176 40% 8%;
+    --sidebar-accent: 175 30% 18%;
+    --sidebar-accent-foreground: 165 20% 90%;
+    --sidebar-border: 175 25% 20%;
+    --sidebar-ring: 171 77% 54%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-recipe {
+    font-family: var(--font-recipe);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-lifted {
+    box-shadow: var(--shadow-lifted);
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
+/* Sonner Toast Button Styling */
+.sonner-toast button {
+  padding: 16px 48px !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  background-color: #16a34a !important;
+  color: white !important;
+  border-radius: 8px !important;
+  display: block !important;
+  margin: 12px auto 0 !important;
+  min-width: 200px !important;
+}
