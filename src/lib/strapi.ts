@@ -2,7 +2,7 @@ import { Recipe } from "./types";
 import { sampleRecipes } from "./sample-recipes";
 
 const STRAPI_URL = normalizeUrl(
-  import.meta.env.VITE_STRAPI_URL as string | undefined
+  import.meta.env.VITE_STRAPI_URL as string | undefined,
 );
 
 let backendHealthy = true;
@@ -14,15 +14,10 @@ function normalizeUrl(u?: string) {
   return `https://${u.replace(/^\/+/, "")}`;
 }
 
-export async function checkBackendHealth(): Promise<{
-  isHealthy: boolean;
-  message: string;
-}> {
+export async function checkBackendHealth(): Promise<boolean> {
   if (!STRAPI_URL) {
-    return {
-      isHealthy: false,
-      message: "Backend URL not configured. Loaded sample data.",
-    };
+    console.warn("🔍 Backend Health Check: Backend URL not configured");
+    return false;
   }
 
   try {
@@ -41,29 +36,93 @@ export async function checkBackendHealth(): Promise<{
     if (res.ok && contentType.includes("application/json")) {
       backendHealthy = true;
       healthCheckCompleted = true;
-      return {
-        isHealthy: true,
-        message: "Backend API connected successfully.",
-      };
+      console.log(
+        "✅ Backend Health Check: Server is healthy and responding with JSON",
+      );
+      return true;
     } else if (res.ok) {
       // 2xx response but not JSON — still reachable
       backendHealthy = true;
       healthCheckCompleted = true;
-      return {
-        isHealthy: true,
-        message: `Backend returned ${res.status} (non-JSON), but is reachable.`,
-      };
+      console.log(
+        "✅ Backend Health Check: Server is responding but not JSON (status:",
+        res.status,
+        ")",
+      );
+      return true;
     } else {
       backendHealthy = false;
       healthCheckCompleted = true;
-      return {
-        isHealthy: false,
-        message: `Backend returned ${res.status}. Loaded sample data.`,
-      };
+      console.error(
+        "❌ Backend Health Check: Server returned error status:",
+        res.status,
+        res.statusText,
+      );
+
+      // Try to get more error details
+      try {
+        const errorText = await res.text();
+        console.error("❌ Backend Error Response:", errorText);
+      } catch (textError) {
+        console.error("❌ Could not read error response body:", textError);
+      }
+
+      return false;
     }
   } catch (err) {
     backendHealthy = false;
     healthCheckCompleted = true;
+
+    // Detailed error logging
+    if (err instanceof Error) {
+      if (err.name === "AbortError") {
+        console.error(
+          "⏰ Backend Health Check: Request timed out after 3 seconds - server likely sleeping",
+        );
+      } else if (err.message.includes("fetch")) {
+        console.error(
+          "🌐 Backend Health Check: Network error - server unreachable:",
+          err.message,
+        );
+      } else if (err.message.includes("ECONNREFUSED")) {
+        console.error(
+          "🔌 Backend Health Check: Connection refused - server not running",
+        );
+      } else {
+        console.error(
+          "💥 Backend Health Check: Unexpected error:",
+          err.name,
+          "-",
+          err.message,
+        );
+      }
+    } else {
+      console.error("💥 Backend Health Check: Unknown error type:", err);
+    }
+
+    return false;
+  }
+}
+
+export async function checkBackendHealthWithMessage(): Promise<{
+  isHealthy: boolean;
+  message: string;
+}> {
+  const isHealthy = await checkBackendHealth();
+
+  if (!STRAPI_URL) {
+    return {
+      isHealthy: false,
+      message: "Backend URL not configured. Loaded sample data.",
+    };
+  }
+
+  if (isHealthy) {
+    return {
+      isHealthy: true,
+      message: "Backend API connected successfully.",
+    };
+  } else {
     return {
       isHealthy: false,
       message: "Backend not available. Loaded sample data.",
@@ -102,7 +161,7 @@ function mapStrapiToRecipe(data: any): Recipe {
   const coverImageUrl = getImageUrl(
     coverMedia?.formats?.medium?.url ||
       coverMedia?.formats?.small?.url ||
-      coverMedia?.url
+      coverMedia?.url,
   );
 
   // Gallery images: scan attributes for likely gallery fields and extract URLs
@@ -114,10 +173,10 @@ function mapStrapiToRecipe(data: any): Recipe {
     const items = Array.isArray(field?.data)
       ? field.data
       : Array.isArray(field)
-      ? field
-      : field?.data
-      ? [field.data]
-      : [field];
+        ? field
+        : field?.data
+          ? [field.data]
+          : [field];
     return items
       .map((img: any) => {
         const m = img?.attributes ?? img;
@@ -137,7 +196,7 @@ function mapStrapiToRecipe(data: any): Recipe {
   }
   // Deduplicate and exclude cover image
   galleryImages = Array.from(new Set(galleryImages)).filter(
-    (u) => !!u && u !== coverImageUrl
+    (u) => !!u && u !== coverImageUrl,
   );
 
   // Categories (handles relation wrappers)
@@ -184,22 +243,38 @@ function mapStrapiToRecipe(data: any): Recipe {
 
 export async function getRecipes(): Promise<Recipe[]> {
   if (!STRAPI_URL) {
+    console.log("📋 getRecipes: Using sample data (no backend URL configured)");
     return Promise.resolve(sampleRecipes);
   }
 
   try {
+    console.log("📋 getRecipes: Fetching from backend...");
     const res = await fetch(
-      `${STRAPI_URL.replace(/\/$/, "")}/api/recipes?populate=*`
+      `${STRAPI_URL.replace(/\/$/, "")}/api/recipes?populate=*`,
     );
     if (!res.ok) {
+      console.error(
+        "❌ getRecipes: Backend error",
+        res.status,
+        "- falling back to sample data",
+      );
       backendHealthy = false;
       return sampleRecipes;
     }
     const json = await res.json();
     const data = json.data || [];
     backendHealthy = true;
+    console.log(
+      "✅ getRecipes: Successfully loaded",
+      data.length,
+      "recipes from backend",
+    );
     return data.map((item: any) => mapStrapiToRecipe(item));
   } catch (err) {
+    console.error(
+      "💥 getRecipes: Network error - falling back to sample data:",
+      err,
+    );
     backendHealthy = false;
     return sampleRecipes;
   }
@@ -207,28 +282,45 @@ export async function getRecipes(): Promise<Recipe[]> {
 
 export async function getRecipeBySlug(slug: string): Promise<Recipe | null> {
   if (!STRAPI_URL) {
+    console.log(
+      `📋 getRecipeBySlug(${slug}): Using sample data (no backend URL configured)`,
+    );
     return Promise.resolve(sampleRecipes.find((r) => r.slug === slug) ?? null);
   }
 
   try {
+    console.log(`📋 getRecipeBySlug(${slug}): Fetching from backend...`);
     const res = await fetch(
       `${STRAPI_URL.replace(
         /\/$/,
-        ""
-      )}/api/recipes?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=*`
+        "",
+      )}/api/recipes?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=*`,
     );
     if (!res.ok) {
+      console.error(
+        `❌ getRecipeBySlug(${slug}): Backend error`,
+        res.status,
+        "- falling back to sample data",
+      );
       backendHealthy = false;
       return sampleRecipes.find((r) => r.slug === slug) ?? null;
     }
     const json = await res.json();
     const item = json.data?.[0];
     if (!item) {
+      console.log(`📋 getRecipeBySlug(${slug}): Recipe not found in backend`);
       return null;
     }
     backendHealthy = true;
+    console.log(
+      `✅ getRecipeBySlug(${slug}): Successfully loaded recipe from backend`,
+    );
     return mapStrapiToRecipe(item);
   } catch (err) {
+    console.error(
+      `💥 getRecipeBySlug(${slug}): Network error - falling back to sample data:`,
+      err,
+    );
     backendHealthy = false;
     return sampleRecipes.find((r) => r.slug === slug) ?? null;
   }
@@ -238,6 +330,9 @@ export async function getCategories(): Promise<
   { id: string; name: string; slug: string }[]
 > {
   if (!STRAPI_URL) {
+    console.log(
+      "📋 getCategories: Using sample data (no backend URL configured)",
+    );
     return Promise.resolve([
       { id: "italian", name: "Italian", slug: "italian" },
       { id: "seafood", name: "Seafood", slug: "seafood" },
@@ -248,8 +343,14 @@ export async function getCategories(): Promise<
   }
 
   try {
+    console.log("📋 getCategories: Fetching from backend...");
     const res = await fetch(`${STRAPI_URL.replace(/\/$/, "")}/api/categories`);
     if (!res.ok) {
+      console.error(
+        "❌ getCategories: Backend error",
+        res.status,
+        "- returning empty array",
+      );
       backendHealthy = false;
       return [];
     }
@@ -263,8 +364,17 @@ export async function getCategories(): Promise<
       };
     });
     backendHealthy = true;
+    console.log(
+      "✅ getCategories: Successfully loaded",
+      categories.length,
+      "categories from backend",
+    );
     return categories;
   } catch (err) {
+    console.error(
+      "💥 getCategories: Network error - returning empty array:",
+      err,
+    );
     backendHealthy = false;
     return [];
   }
@@ -283,8 +393,8 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
         r.tags.some((t) => t.toLowerCase().includes(lower)) ||
         r.ingredients.some((ing) => ing.item.toLowerCase().includes(lower)) ||
         r.instructions.some((ins) =>
-          (ins.description || "").toLowerCase().includes(lower)
-        )
+          (ins.description || "").toLowerCase().includes(lower),
+        ),
     );
   }
 
@@ -293,7 +403,7 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
     const encoded = encodeURIComponent(q);
     const url = `${STRAPI_URL.replace(
       /\/$/,
-      ""
+      "",
     )}/api/recipes?filters[$or][0][title][$containsi]=${encoded}&filters[$or][1][description][$containsi]=${encoded}&filters[$or][2][tags][$containsi]=${encoded}&populate=*`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Strapi responded ${res.status}`);
@@ -313,8 +423,8 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
         r.tags.some((t) => t.toLowerCase().includes(lower)) ||
         r.ingredients.some((ing) => ing.item.toLowerCase().includes(lower)) ||
         r.instructions.some((ins) =>
-          (ins.description || "").toLowerCase().includes(lower)
-        )
+          (ins.description || "").toLowerCase().includes(lower),
+        ),
     );
   } catch (err) {
     const lower = q.toLowerCase();
@@ -325,14 +435,14 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
         r.tags.some((t) => t.toLowerCase().includes(lower)) ||
         r.ingredients.some((ing) => ing.item.toLowerCase().includes(lower)) ||
         r.instructions.some((ins) =>
-          (ins.description || "").toLowerCase().includes(lower)
-        )
+          (ins.description || "").toLowerCase().includes(lower),
+        ),
     );
   }
 }
 
 export async function createRecipeFromAccess(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ ok: boolean; id?: number; slug?: string; error?: string }> {
   if (!STRAPI_URL) {
     return { ok: false, error: "Backend URL not configured" };
@@ -352,7 +462,7 @@ export async function createRecipeFromAccess(
         body: formData,
         credentials: "include",
         headers,
-      }
+      },
     );
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {

@@ -11,11 +11,7 @@ import { useEffect } from "react";
 import {
   getRecipes,
   getCategories,
-  checkBackendHealth,
-  getBackendStatus,
 } from "@/lib/strapi";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { isAccessGranted, getAccessName, clearAccessGrant } from "@/lib/access";
 import { Button } from "@/components/ui/button";
 
@@ -25,7 +21,7 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [recipes, setRecipes] = useState<Recipe[]>(sampleRecipes);
   const [loading, setLoading] = useState(false);
-  const [backendError, setBackendError] = useState<string | null>(null);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [categories, setCategories] = useState<
@@ -74,23 +70,16 @@ const Index = () => {
     let mounted = true;
     setLoading(true);
 
-    // Perform health check first
-    checkBackendHealth()
-      .then((health) => {
-        if (!mounted) return;
-        if (!health.isHealthy) {
-          setBackendError(health.message);
-        }
-        // Fetch recipes
-        return getRecipes();
-      })
+    // Fetch recipes (backend health is handled by WakeUpBanner)
+    getRecipes()
       .then((data) => {
         if (!mounted) return;
         setRecipes(data);
       })
       .catch(() => {
         if (!mounted) return;
-        setBackendError("Failed to load recipes. Using sample data.");
+        // Error is handled gracefully by getRecipes() with fallback to sample data
+        setRecipes(sampleRecipes);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -122,22 +111,6 @@ const Index = () => {
           className="container mx-auto px-4 pb-16"
           data-testid="recipes-section"
         >
-          {backendError && (
-            <Alert
-              variant="default"
-              className="mb-6 bg-amber-50 border-amber-200"
-              data-testid="backend-error-alert"
-            >
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription
-                className="text-amber-800"
-                data-testid="backend-error-message"
-              >
-                <strong>Backend error:</strong> {backendError}
-              </AlertDescription>
-            </Alert>
-          )}
-
           <CategoryFilter
             selected={selectedCategory}
             onSelect={setSelectedCategory}
