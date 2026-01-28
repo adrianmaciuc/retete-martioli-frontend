@@ -193,13 +193,8 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
   );
 }
 
-export function useWakeUpContext() {
-  const context = useContext(WakeUpContext);
-  if (context === undefined) {
-    throw new Error('useWakeUpContext must be used within a WakeUpProvider');
-  }
-  return context;
-}
+export { WakeUpContext };
+export type { WakeUpContextType };
 
 
 

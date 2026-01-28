@@ -1,4 +1,4 @@
-import { Recipe } from "./types";
+import { Recipe, Difficulty } from "./types";
 import { sampleRecipes } from "./sample-recipes";
 
 const STRAPI_URL = normalizeUrl(
@@ -7,6 +7,7 @@ const STRAPI_URL = normalizeUrl(
 
 let backendHealthy = true;
 let healthCheckCompleted = false;
+const hasLoggedApiCall = new Map<string, boolean>(); // Track first-time API calls
 
 function normalizeUrl(u?: string) {
   if (!u) return undefined;
@@ -233,7 +234,7 @@ function mapStrapiToRecipe(data: any): Recipe {
     prepTime: Number(attrs?.prepTime ?? 0),
     cookTime: Number(attrs?.cookTime ?? 0),
     servings: Number(attrs?.servings ?? 1),
-    difficulty: (attrs?.difficulty ?? "Medium") as any,
+    difficulty: (attrs?.difficulty ?? "Medium") as Difficulty,
     categories,
     tags: extractTags(attrs?.tags),
     createdAt: attrs?.createdAt,
@@ -248,33 +249,45 @@ export async function getRecipes(): Promise<Recipe[]> {
   }
 
   try {
-    console.log("📋 getRecipes: Fetching from backend...");
+    const callKey = 'getRecipes';
+    const shouldLog = !hasLoggedApiCall.has(callKey);
+    
+    if (shouldLog) {
+      console.log("📋 getRecipes: Fetching from backend...");
+      hasLoggedApiCall.set(callKey, true);
+    }
     const res = await fetch(
       `${STRAPI_URL.replace(/\/$/, "")}/api/recipes?populate=*`,
     );
     if (!res.ok) {
-      console.error(
-        "❌ getRecipes: Backend error",
-        res.status,
-        "- falling back to sample data",
-      );
+      if (shouldLog) {
+        console.error(
+          "❌ getRecipes: Backend error",
+          res.status,
+          "- falling back to sample data",
+        );
+      }
       backendHealthy = false;
       return sampleRecipes;
     }
     const json = await res.json();
     const data = json.data || [];
     backendHealthy = true;
-    console.log(
-      "✅ getRecipes: Successfully loaded",
-      data.length,
-      "recipes from backend",
-    );
+    if (shouldLog) {
+      console.log(
+        "✅ getRecipes: Successfully loaded",
+        data.length,
+        "recipes from backend",
+      );
+    }
     return data.map((item: any) => mapStrapiToRecipe(item));
   } catch (err) {
-    console.error(
-      "💥 getRecipes: Network error - falling back to sample data:",
-      err,
-    );
+    if (shouldLog) {
+      console.error(
+        "💥 getRecipes: Network error - falling back to sample data:",
+        err,
+      );
+    }
     backendHealthy = false;
     return sampleRecipes;
   }

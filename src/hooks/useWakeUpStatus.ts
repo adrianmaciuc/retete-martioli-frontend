@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useWakeUpContext } from '@/contexts/WakeUpContext';
+import { useWakeUpContext } from '@/contexts/useWakeUpContext';
 import { wakeUpMessages } from '@/lib/wakeUpMessages';
 import { checkBackendHealth } from '@/lib/strapi';
 
@@ -108,7 +108,6 @@ export function useWakeUpStatus() {
         clearTimeout(healthCheckTimeoutRef.current);
       }
 
-      console.log('🔄 Wake-up Status Check: Starting health check...');
       const isHealthy = await checkBackendHealth();
       
       if (!isHealthy && !state.isWakingUp) {
@@ -135,8 +134,6 @@ export function useWakeUpStatus() {
         console.log('🎉 Backend woke up successfully! Completing wake-up process...');
         // Backend woke up earlier than expected
         completeWakeUp();
-      } else if (isHealthy && !state.isWakingUp) {
-        console.log('✅ Backend is healthy and awake - no action needed');
       }
     } catch (error) {
       console.error('💥 Wake-up Status Check failed:', error);
