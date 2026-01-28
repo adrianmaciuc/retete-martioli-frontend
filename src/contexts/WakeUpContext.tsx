@@ -21,7 +21,7 @@ const WakeUpContext = createContext<WakeUpContextType | undefined>(undefined);
 
 const initialState: WakeUpState = {
   isWakingUp: false,
-  countdownSeconds: 60,
+  countdownSeconds: 120,
   isUsingMockData: false,
   wakeUpStartTime: null,
   currentMessage: '',
@@ -34,7 +34,7 @@ function wakeUpReducer(state: WakeUpState, action: WakeUpAction): WakeUpState {
       return {
         ...state,
         isWakingUp: true,
-        countdownSeconds: 60,
+        countdownSeconds: 120,
         wakeUpStartTime: action.startTime,
         isUsingMockData: true,
       };
@@ -47,7 +47,7 @@ function wakeUpReducer(state: WakeUpState, action: WakeUpAction): WakeUpState {
       return {
         ...state,
         isWakingUp: false,
-        countdownSeconds: 60,
+        countdownSeconds: 120,
         isUsingMockData: false,
         wakeUpStartTime: null,
       };
@@ -94,10 +94,10 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
         const parsed = JSON.parse(stored);
         const now = Date.now();
         
-        // If wake-up was started less than 60 seconds ago, restore it
+        // If wake-up was started less than 120 seconds ago, restore it
         if (parsed.isWakingUp && parsed.wakeUpStartTime) {
           const elapsed = Math.floor((now - parsed.wakeUpStartTime) / 1000);
-          const remaining = Math.max(0, 60 - elapsed);
+          const remaining = Math.max(0, 120 - elapsed);
           
           if (remaining > 0) {
             dispatch({ type: 'START_WAKE_UP', startTime: parsed.wakeUpStartTime });
@@ -141,7 +141,7 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
           
           if (parsed.isWakingUp && parsed.wakeUpStartTime) {
             const elapsed = Math.floor((now - parsed.wakeUpStartTime) / 1000);
-            const remaining = Math.max(0, 60 - elapsed);
+            const remaining = Math.max(0, 120 - elapsed);
             
             if (remaining > 0) {
               dispatch({ type: 'START_WAKE_UP', startTime: parsed.wakeUpStartTime });

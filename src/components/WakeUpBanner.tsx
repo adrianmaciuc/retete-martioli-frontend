@@ -55,7 +55,7 @@ export function WakeUpBanner() {
         <div
           className="h-full bg-amber-500 dark:bg-amber-400 transition-all duration-100 ease-linear"
           style={{
-            width: `${((parseInt(formattedCountdown.split(":")[0]) * 60 + parseInt(formattedCountdown.split(":")[1])) / 60) * 100}%`,
+            width: `${((parseInt(formattedCountdown.split(":")[0]) * 60 + parseInt(formattedCountdown.split(":")[1])) / 120) * 100}%`,
           }}
         />
       </div>

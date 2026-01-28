@@ -248,9 +248,10 @@ export async function getRecipes(): Promise<Recipe[]> {
     return Promise.resolve(sampleRecipes);
   }
 
+  const callKey = 'getRecipes';
+  const shouldLog = !hasLoggedApiCall.has(callKey);
+
   try {
-    const callKey = 'getRecipes';
-    const shouldLog = !hasLoggedApiCall.has(callKey);
     
     if (shouldLog) {
       console.log("📋 getRecipes: Fetching from backend...");

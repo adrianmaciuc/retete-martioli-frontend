@@ -14,6 +14,7 @@ import {
 } from "@/lib/strapi";
 import { isAccessGranted, getAccessName, clearAccessGrant } from "@/lib/access";
 import { Button } from "@/components/ui/button";
+import { useWakeUpStatus } from "@/hooks/useWakeUpStatus";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -66,8 +67,18 @@ const Index = () => {
     }
   };
 
+  const { isUsingMockData } = useWakeUpStatus();
+
   useEffect(() => {
     let mounted = true;
+    
+    // Don't show loading skeleton when using mock data during wake-up
+    if (isUsingMockData) {
+      setLoading(false);
+      setRecipes(sampleRecipes);
+      return;
+    }
+
     setLoading(true);
 
     // Fetch recipes (backend health is handled by WakeUpBanner)
@@ -94,7 +105,7 @@ const Index = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isUsingMockData]);
 
   useEffect(() => {
     setIsLoggedIn(isAccessGranted());

@@ -47,14 +47,14 @@ export function useWakeUpStatus() {
   useEffect(() => {
     if (state.isWakingUp && state.wakeUpStartTime) {
       if (!hasStartedCountdownRef.current) {
-        console.log('⏰ Starting 60-second countdown timer...');
+        console.log('⏰ Starting 120-second countdown timer...');
         hasStartedCountdownRef.current = true;
       }
       
       countdownIntervalRef.current = setInterval(() => {
         const now = Date.now();
         const elapsed = Math.floor((now - state.wakeUpStartTime!) / 1000);
-        const remaining = Math.max(0, 60 - elapsed);
+        const remaining = Math.max(0, 120 - elapsed);
 
         // Log countdown progress at key intervals (only once each)
         if (remaining === 30 && !loggedProgressRef.current.has(30)) {
@@ -163,12 +163,12 @@ export function useWakeUpStatus() {
   // Calculate current countdown seconds
   const getCurrentCountdown = useCallback(() => {
     if (!state.isWakingUp || !state.wakeUpStartTime) {
-      return 60;
+      return 120;
     }
     
     const now = Date.now();
     const elapsed = Math.floor((now - state.wakeUpStartTime) / 1000);
-    return Math.max(0, 60 - elapsed);
+    return Math.max(0, 120 - elapsed);
   }, [state.isWakingUp, state.wakeUpStartTime]);
 
   // Format countdown as MM:SS
