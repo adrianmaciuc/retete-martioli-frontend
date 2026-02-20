@@ -12,36 +12,54 @@ export function useWakeUpStatus() {
   const hasStartedCountdownRef = useRef(false);
 
   // Message rotation effect
+  // Note: depend only on isWakingUp and rotateMessage to avoid re-creating the interval
+  // whenever the message or index updates (which would reset the timer).
   useEffect(() => {
-    if (state.isWakingUp) {
-      let index = state.messageIndex;
-      
-      // Set initial message
-      if (!state.currentMessage) {
-        const message = wakeUpMessages[index % wakeUpMessages.length];
-        rotateMessage(message, index);
-        index++;
-      }
-
-      // Rotate messages every 5 seconds
-      messageIntervalRef.current = setInterval(() => {
-        const message = wakeUpMessages[index % wakeUpMessages.length];
-        rotateMessage(message, index);
-        index++;
-      }, 5000);
-    } else {
+    if (!state.isWakingUp) {
       if (messageIntervalRef.current) {
         clearInterval(messageIntervalRef.current);
         messageIntervalRef.current = null;
       }
+      return;
     }
+
+    // Initialize index from state.messageIndex if present, otherwise randomize
+    let index = (typeof state.messageIndex === 'number' && state.messageIndex >= 0)
+      ? state.messageIndex
+      : Math.floor(Math.random() * wakeUpMessages.length);
+
+    // Ensure there's an initial message immediately
+    const initialMessage = wakeUpMessages[index % wakeUpMessages.length];
+    rotateMessage(initialMessage, index);
+    index++;
+
+    // Clear any existing interval before starting a new one
+    if (messageIntervalRef.current) {
+      clearInterval(messageIntervalRef.current);
+    }
+
+    // Rotate messages every 5 seconds (configurable)
+    messageIntervalRef.current = setInterval(() => {
+      const message = wakeUpMessages[index % wakeUpMessages.length];
+      rotateMessage(message, index);
+      // persist index to localStorage so other tabs can pick up rotation
+      try {
+        const stored = JSON.parse(localStorage.getItem('backend-wake-up') || '{}');
+        stored.messageIndex = index;
+        localStorage.setItem('backend-wake-up', JSON.stringify(stored));
+      } catch (e) {
+        // ignore localStorage failures
+      }
+      index++;
+    }, 5000);
 
     return () => {
       if (messageIntervalRef.current) {
         clearInterval(messageIntervalRef.current);
+        messageIntervalRef.current = null;
       }
     };
-  }, [state.isWakingUp, state.messageIndex, state.currentMessage, rotateMessage]);
+  }, [state.isWakingUp, rotateMessage]);
 
   // Countdown timer effect
   useEffect(() => {

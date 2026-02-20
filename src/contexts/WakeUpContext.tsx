@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { wakeUpMessages } from '@/lib/wakeUpMessages';
 
 export interface WakeUpState {
   isWakingUp: boolean;
@@ -122,6 +123,8 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
         localStorage.setItem('backend-wake-up', JSON.stringify({
           isWakingUp: state.isWakingUp,
           wakeUpStartTime: state.wakeUpStartTime,
+          // persist message index so other tabs can continue rotation where left off
+          messageIndex: state.messageIndex,
         }));
       } catch (error) {
         console.warn('Failed to save wake-up state to localStorage:', error);
@@ -129,7 +132,7 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
     } else {
       localStorage.removeItem('backend-wake-up');
     }
-  }, [state.isWakingUp, state.wakeUpStartTime]);
+  }, [state.isWakingUp, state.wakeUpStartTime, state.messageIndex]);
 
   // Listen for storage events to sync across tabs
   useEffect(() => {
@@ -147,6 +150,10 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
               dispatch({ type: 'START_WAKE_UP', startTime: parsed.wakeUpStartTime });
               dispatch({ type: 'UPDATE_COUNTDOWN', seconds: remaining });
               dispatch({ type: 'SET_MOCK_DATA', usingMockData: true });
+              // restore message index if present so rotation continues consistently across tabs
+              if (typeof parsed.messageIndex === 'number') {
+                dispatch({ type: 'ROTATE_MESSAGE', message: wakeUpMessages[parsed.messageIndex % wakeUpMessages.length], index: parsed.messageIndex });
+              }
             } else {
               dispatch({ type: 'RESET' });
             }
@@ -161,30 +168,30 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const startWakeUp = () => {
+  const startWakeUp = useCallback(() => {
     const startTime = Date.now();
     dispatch({ type: 'START_WAKE_UP', startTime });
-  };
+  }, [dispatch]);
 
-  const completeWakeUp = () => {
+  const completeWakeUp = useCallback(() => {
     dispatch({ type: 'WAKE_UP_COMPLETE' });
-  };
+  }, [dispatch]);
 
-  const setUsingMockData = (usingMockData: boolean) => {
+  const setUsingMockData = useCallback((usingMockData: boolean) => {
     dispatch({ type: 'SET_MOCK_DATA', usingMockData });
-  };
+  }, [dispatch]);
 
-  const rotateMessage = (message: string, index: number) => {
+  const rotateMessage = useCallback((message: string, index: number) => {
     dispatch({ type: 'ROTATE_MESSAGE', message, index });
-  };
+  }, [dispatch]);
 
-  const value: WakeUpContextType = {
+  const value: WakeUpContextType = useMemo(() => ({
     state,
     startWakeUp,
     completeWakeUp,
     setUsingMockData,
     rotateMessage,
-  };
+  }), [state, startWakeUp, completeWakeUp, setUsingMockData, rotateMessage]);
 
   return (
     <WakeUpContext.Provider value={value}>
@@ -195,6 +202,3 @@ export function WakeUpProvider({ children }: WakeUpProviderProps) {
 
 export { WakeUpContext };
 export type { WakeUpContextType };
-
-
-
