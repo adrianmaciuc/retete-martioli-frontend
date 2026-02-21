@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import AccessPage from "./pages/Access";
 import SecretPage from "./pages/Secret";
 import AddRecipePage from "./pages/AddRecipe";
+import ExternalRecipesPage from "./pages/external-recipes";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/recipe/:slug" element={<RecipePage />} />
             <Route path="/access" element={<AccessPage />} />
             <Route path="/add-recipe" element={<AddRecipePage />} />
+            <Route path="/external-recipes" element={<ExternalRecipesPage />} />
             <Route path="/secret" element={<SecretPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

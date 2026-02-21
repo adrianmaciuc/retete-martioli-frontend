@@ -138,6 +138,17 @@ const Index = () => {
             }}
             loading={loading}
           />
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/external-recipes")}
+              className="border-2 hover:border-primary hover:bg-primary/5"
+              data-testid="nav-external-recipes"
+            >
+              Explore External Recipes
+            </Button>
+          </div>
         </section>
       </main>
 
