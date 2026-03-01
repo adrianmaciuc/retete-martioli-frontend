@@ -1,5 +1,6 @@
 import { Recipe, Difficulty } from "./types";
 import { sampleRecipes } from "./sample-recipes";
+import { sampleExternalRecipes } from "./sample-external-recipes";
 
 const STRAPI_URL = normalizeUrl(
   import.meta.env.VITE_STRAPI_URL as string | undefined,
@@ -294,6 +295,73 @@ export async function getRecipes(): Promise<Recipe[]> {
   }
 }
 
+export interface ExternalRecipe {
+  id: string | number;
+  name: string;
+  link: string;
+  shortDescription: string;
+}
+
+export async function getExternalRecipes(): Promise<ExternalRecipe[]> {
+  if (!STRAPI_URL) {
+    console.log("📋 getExternalRecipes: Using sample data (no backend URL configured)");
+    return Promise.resolve(sampleExternalRecipes as ExternalRecipe[]);
+  }
+
+  const callKey = 'getExternalRecipes';
+  const shouldLog = !hasLoggedApiCall.has(callKey);
+
+  try {
+    if (shouldLog) {
+      console.log("📋 getExternalRecipes: Fetching from backend...");
+      hasLoggedApiCall.set(callKey, true);
+    }
+    const res = await fetch(
+      `${STRAPI_URL.replace(/\/$/, "")}/api/external-recipes?populate=*`,
+    );
+    if (!res.ok) {
+      if (shouldLog) {
+        console.error(
+          "❌ getExternalRecipes: Backend error",
+          res.status,
+          "- falling back to sample data",
+        );
+      }
+      backendHealthy = false;
+      return sampleExternalRecipes as ExternalRecipe[];
+    }
+    const json = await res.json();
+    const data = json.data || [];
+    backendHealthy = true;
+    if (shouldLog) {
+      console.log(
+        "✅ getExternalRecipes: Successfully loaded",
+        data.length,
+        "external recipes from backend",
+      );
+    }
+    // Map Strapi response to ExternalRecipe interface
+    return data.map((item: any) => {
+      const attrs = item?.attributes ?? item;
+      return {
+        id: item.id ?? attrs.id,
+        name: attrs.name,
+        link: attrs.link,
+        shortDescription: attrs.shortDescription,
+      };
+    });
+  } catch (err) {
+    if (shouldLog) {
+      console.error(
+        "💥 getExternalRecipes: Network error - falling back to sample data:",
+        err,
+      );
+    }
+    backendHealthy = false;
+    return sampleExternalRecipes as ExternalRecipe[];
+  }
+}
+
 export async function getRecipeBySlug(slug: string): Promise<Recipe | null> {
   if (!STRAPI_URL) {
     console.log(
@@ -483,6 +551,39 @@ export async function createRecipeFromAccess(
       return { ok: false, error: json?.error || `HTTP ${res.status}` };
     }
     return { ok: true, id: json?.id, slug: json?.slug };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Network error" };
+  }
+}
+
+export async function createExternalRecipeFromAccess(
+  formData: FormData,
+): Promise<{ ok: boolean; id?: number; error?: string }> {
+  if (!STRAPI_URL) {
+    return { ok: false, error: "Backend URL not configured" };
+  }
+  try {
+    // Get access grant from localStorage
+    const grantStr = localStorage.getItem("access_grant");
+    const headers: HeadersInit = {};
+    if (grantStr) {
+      headers["Authorization"] = `Bearer ${grantStr}`;
+    }
+
+    const res = await fetch(
+      `${STRAPI_URL.replace(/\/$/, "")}/api/external-recipes/create-from-access`,
+      {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+        headers,
+      },
+    );
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { ok: false, error: json?.error || `HTTP ${res.status}` };
+    }
+    return { ok: true, id: json?.id };
   } catch (e: any) {
     return { ok: false, error: e?.message || "Network error" };
   }

@@ -1,66 +1,119 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Plus } from "lucide-react";
+import { Header } from "@/components/Header";
 import { ExternalRecipeCard } from "@/components/ExternalRecipeCard";
-import { sampleExternalRecipes } from "@/lib/sample-external-recipes";
-import { checkBackendHealth } from "@/lib/strapi";
+import { Button } from "@/components/ui/button";
+import { getExternalRecipes, ExternalRecipe } from "@/lib/strapi";
+import { isAccessGranted } from "@/lib/access";
 
 export default function ExternalRecipesPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [usingMock, setUsingMock] = useState(false);
+  const navigate = useNavigate();
+  const [items, setItems] = useState<ExternalRecipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      const healthy = await checkBackendHealth();
-      if (!mounted) return;
-      if (!healthy) {
-        setUsingMock(true);
-        setItems(sampleExternalRecipes as any[]);
-        return;
-      }
+    
+    setLoading(true);
+    getExternalRecipes()
+      .then((data) => {
+        if (!mounted) return;
+        setItems(data);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
-      try {
-        const res = await fetch("/api/external-recipes?populate=*");
-        if (!res.ok) throw new Error("fetch failed");
-        const json = await res.json();
-        const data = json.data || [];
-        // map possible Strapi wrappers
-        const mapped = data.map((d: any) => {
-          const attrs = d.attributes ?? d;
-          return {
-            id: d.id ?? attrs.id,
-            name: attrs.name,
-            link: attrs.link,
-            shortDescription: attrs.shortDescription,
-          };
-        });
-        setItems(mapped);
-      } catch (e) {
-        setUsingMock(true);
-        setItems(sampleExternalRecipes as any[]);
-      }
-    })();
     return () => {
       mounted = false;
     };
   }, []);
 
+  useEffect(() => {
+    setIsLoggedIn(isAccessGranted());
+  }, []);
+
+  const handleAddExternalRecipe = () => {
+    if (isAccessGranted()) {
+      navigate("/external-recipes/admin");
+    } else {
+      navigate("/access");
+    }
+  };
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">External Recipes</h1>
-      <div data-testid="external-recipes-list" className="space-y-4">
-        {items.map((it) => (
-          <ExternalRecipeCard
-            key={it.id}
-            id={it.id}
-            name={it.name}
-            link={it.link}
-            shortDescription={it.shortDescription}
-          />
-        ))}
-      </div>
-      {usingMock && (
-        <div className="mt-6 text-sm text-muted">Showing mocked entries while backend is sleeping.</div>
-      )}
-    </main>
+    <div className="min-h-screen bg-background" data-testid="external-recipes-page">
+      <Header />
+
+      <main data-testid="external-recipes-main">
+        <section className="container mx-auto px-4 py-8">
+          <div className="mb-6 flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="gap-2"
+              data-testid="back-button"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+          </div>
+
+          <h1 className="text-3xl font-display font-bold text-foreground mb-2">
+            External Recipes
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            Curated recipes from around the web
+          </p>
+
+          {loading ? (
+            <div className="text-muted-foreground">Loading...</div>
+          ) : (
+            <div data-testid="external-recipes-list" className="space-y-4">
+              {items.map((it) => (
+                <ExternalRecipeCard
+                  key={it.id}
+                  id={it.id}
+                  name={it.name}
+                  link={it.link}
+                  shortDescription={it.shortDescription}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer
+        className="bg-card border-t border-border py-8 mt-16"
+        data-testid="external-recipes-footer"
+      >
+        <div
+          className="container mx-auto px-4 text-center"
+          data-testid="footer-content"
+        >
+          <p
+            className="text-muted-foreground text-sm"
+            data-testid="footer-text"
+          >
+            Creat cu 💚 de Adrian Maciuc, pentru iubitorii de mancare din
+            intreaga lume
+          </p>
+          <button
+            onClick={handleAddExternalRecipe}
+            className="mt-4 text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+            title="Add external recipe - Chef Mode"
+            data-testid="external-admin-secret"
+            aria-label="Add external recipe"
+          >
+            +
+          </button>
+        </div>
+      </footer>
+    </div>
   );
 }

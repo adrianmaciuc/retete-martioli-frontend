@@ -50,14 +50,24 @@ export function Header() {
         </Link>
 
         {isLoggedIn && (
-          <Link
-            to="/add-recipe"
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-primary hover:border-primary transition-colors"
-            title="Add recipe"
-            data-testid="header-add-recipe"
-          >
-            <Plus className="w-4 h-4" /> Adauga reteta
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/add-recipe"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+              title="Add recipe"
+              data-testid="header-add-recipe"
+            >
+              <Plus className="w-4 h-4" /> Adauga reteta
+            </Link>
+            <Link
+              to="/external-recipes/admin"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+              title="Add external recipe"
+              data-testid="header-add-external-recipe"
+            >
+              <Plus className="w-4 h-4" /> Adauga reteta externa
+            </Link>
+          </div>
         )}
       </div>
     </header>
