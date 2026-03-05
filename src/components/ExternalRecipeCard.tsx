@@ -26,9 +26,9 @@ export function ExternalRecipeCard({ id, name, link, shortDescription, className
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent underline"
+        className="text-accent underline"
         >
-          Open recipe
+          Deschide reteta
         </a>
       </div>
     </article>

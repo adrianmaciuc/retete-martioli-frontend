@@ -58,19 +58,19 @@ export default function ExternalRecipesPage() {
               data-testid="back-button"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              Inapoi
             </Button>
           </div>
 
           <h1 className="text-3xl font-display font-bold text-foreground mb-2">
-            External Recipes
+            Retete externe
           </h1>
           <p className="text-muted-foreground mb-8">
-            Curated recipes from around the web
+            Retete selectionate de pe internet
           </p>
 
           {loading ? (
-            <div className="text-muted-foreground">Loading...</div>
+            <div className="text-muted-foreground">Se incarca...</div>
           ) : (
             <div data-testid="external-recipes-list" className="space-y-4">
               {items.map((it) => (
@@ -106,9 +106,9 @@ export default function ExternalRecipesPage() {
           <button
             onClick={handleAddExternalRecipe}
             className="mt-4 text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
-            title="Add external recipe - Chef Mode"
+            title="Adauga reteta externa - Chef Mode"
             data-testid="external-admin-secret"
-            aria-label="Add external recipe"
+            aria-label="Adauga reteta externa"
           >
             +
           </button>

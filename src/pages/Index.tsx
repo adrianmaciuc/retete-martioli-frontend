@@ -146,7 +146,7 @@ const Index = () => {
               className="border-2 hover:border-primary hover:bg-primary/5"
               data-testid="nav-external-recipes"
             >
-              Explore External Recipes
+              Vezi retete externe
             </Button>
           </div>
         </section>

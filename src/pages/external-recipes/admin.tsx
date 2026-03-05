@@ -38,22 +38,22 @@ export default function AddExternalRecipe() {
     // Basic client-side validation
     if (!name.trim()) {
       toast({
-        title: "Name is required",
-        description: "Please provide a recipe name",
+        title: "Nume obligatoriu",
+        description: "Va rugam introduceti numele retetei",
       });
       return;
     }
     if (!link.trim()) {
       toast({
-        title: "Link is required",
-        description: "Please provide a recipe URL",
+        title: "Link obligatoriu",
+        description: "Va rugam introduceti URL-ul retetei",
       });
       return;
     }
     if (!shortDescription.trim()) {
       toast({
-        title: "Description is required",
-        description: "Please provide a short description",
+        title: "Descriere obligatorie",
+        description: "Va rugam introduceti o descriere scurta",
       });
       return;
     }
@@ -71,11 +71,11 @@ export default function AddExternalRecipe() {
     try {
       const res = await createExternalRecipeFromAccess(fd);
       if (!res.ok) {
-        setError(res.error || "Unknown error occurred while creating external recipe");
-        return;
-      }
+      setError(res.error || "Eroare necunoscuta la crearea retetei externe");
+      return;
+    }
       toast({
-        title: "External recipe created successfully!",
+        title: "Reteta externa creata cu succes!",
       });
       navigate("/external-recipes");
     } finally {
@@ -91,17 +91,17 @@ export default function AddExternalRecipe() {
           className="container mx-auto px-4 py-8"
           data-testid="add-external-recipe-error-page"
         >
-          <div className="max-w-md mx-auto mt-16 text-center">
+      <div className="max-w-md mx-auto mt-16 text-center">
             <div
               className="bg-destructive/10 border border-destructive rounded-lg p-8"
               data-testid="add-external-recipe-error-card"
             >
-              <h1
-                className="text-2xl font-bold text-destructive mb-4"
-                data-testid="add-external-recipe-error-title"
-              >
-                Error creating external recipe
-              </h1>
+                <h1
+                  className="text-2xl font-bold text-destructive mb-4"
+                  data-testid="add-external-recipe-error-title"
+                >
+                  Eroare la crearea retetei externe
+                </h1>
               <p
                 className="text-muted-foreground mb-6"
                 data-testid="add-external-recipe-error-message"
@@ -109,7 +109,7 @@ export default function AddExternalRecipe() {
                 {error}
               </p>
               <p className="text-sm text-muted-foreground">
-                Redirecting to external recipes page in a few seconds...
+                Redirectionare catre pagina de retete externe in cateva secunde...
               </p>
             </div>
           </div>
@@ -124,26 +124,26 @@ export default function AddExternalRecipe() {
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/external-recipes")}
-            className="gap-2"
-            data-testid="back-button"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to External Recipes
-          </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate("/external-recipes")}
+        className="gap-2"
+        data-testid="back-button"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Inapoi la retete externe
+      </Button>
         </div>
 
         <h1
           className="text-3xl font-display font-bold text-foreground mb-2"
           data-testid="add-external-recipe-title"
         >
-          Add External Recipe
+          Adauga reteta externa
         </h1>
         <p className="text-muted-foreground mb-8">
-          Add a curated recipe from around the web
+          Adauga o reteta selectionata de pe internet
         </p>
 
         <div
@@ -151,32 +151,32 @@ export default function AddExternalRecipe() {
           data-testid="external-admin-form"
         >
           <div>
-            <Label className="block mb-2">Recipe Name</Label>
+            <Label className="block mb-2">Numele retetei</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Italian Salsa Verde"
+              placeholder="ex: Italian Salsa Verde"
               data-testid="add-external-recipe-name-input"
             />
           </div>
 
           <div>
-            <Label className="block mb-2">Recipe URL</Label>
+            <Label className="block mb-2">URL retetei</Label>
             <Input
               type="url"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              placeholder="https://example.com/recipe"
+              placeholder="https://exemplu.com/reteta"
               data-testid="add-external-recipe-link-input"
             />
           </div>
 
           <div>
-            <Label className="block mb-2">Short Description</Label>
+            <Label className="block mb-2">Descriere scurta</Label>
             <Textarea
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
-              placeholder="A brief description of the recipe"
+              placeholder="O descriere scurta a retetei"
               rows={4}
               data-testid="add-external-recipe-description"
             />
@@ -188,16 +188,16 @@ export default function AddExternalRecipe() {
               disabled={loading}
               data-testid="add-external-recipe-submit"
             >
-              {loading ? "Creating..." : "Create External Recipe"}
+              {loading ? "Se creeaza..." : "Creeaza reteta externa"}
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/external-recipes")}
-              disabled={loading}
-              data-testid="add-external-recipe-cancel"
-            >
-              Cancel
-            </Button>
+             <Button
+               variant="outline"
+               onClick={() => navigate("/external-recipes")}
+               disabled={loading}
+               data-testid="add-external-recipe-cancel"
+             >
+               Anuleaza
+             </Button>
           </div>
         </div>
       </main>
