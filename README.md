@@ -24,7 +24,6 @@ Key folders:
 - Node.js 18+ (LTS)
 - npm or yarn
 - Git
-- (Optional) Railway CLI for deployment: `npm i -g @railway/cli`
 - Cloudinary account (for production uploads)
 
 ---
