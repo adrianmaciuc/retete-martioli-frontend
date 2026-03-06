@@ -1,5 +1,5 @@
 import { SearchBar } from "./SearchBar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Home } from "lucide-react";
 
@@ -9,6 +9,9 @@ interface HeroProps {
 }
 
 export function Hero({ onSearch, recipeCount }: HeroProps) {
+  const location = useLocation();
+  const isExternal = location.pathname.startsWith("/external-recipes");
+
   return (
     <section
       className="relative py-16 md:py-24 overflow-hidden"
@@ -62,13 +65,23 @@ export function Hero({ onSearch, recipeCount }: HeroProps) {
 
           {/* Navigation Buttons */}
           <div className="flex justify-center gap-4 mb-8">
-            <Button asChild size="lg" className="gap-2">
+            <Button
+              asChild
+              size="lg"
+              variant={isExternal ? "outline" : undefined}
+              className="gap-2"
+            >
               <Link to="/">
                 <Home className="w-5 h-5" />
                 Retete Personale
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="gap-2">
+            <Button
+              asChild
+              size="lg"
+              variant={isExternal ? undefined : "outline"}
+              className="gap-2"
+            >
               <Link to="/external-recipes">
                 <ExternalLink className="w-5 h-5" />
                 Retete Externe
@@ -107,15 +120,27 @@ export function Hero({ onSearch, recipeCount }: HeroProps) {
 }
 
 export function HeroButtons() {
+  const location = useLocation();
+  const isExternal = location.pathname.startsWith("/external-recipes");
   return (
     <div className="flex justify-center gap-4 py-8">
-      <Button asChild size="lg" className="gap-2">
+      <Button
+        asChild
+        size="lg"
+        variant={isExternal ? undefined : "outline"}
+        className="gap-2"
+      >
         <Link to="/external-recipes">
           <ExternalLink className="w-5 h-5" />
           Retete Externe
         </Link>
       </Button>
-      <Button asChild variant="outline" size="lg" className="gap-2">
+      <Button
+        asChild
+        size="lg"
+        variant={isExternal ? "outline" : undefined}
+        className="gap-2"
+      >
         <Link to="/">
           <Home className="w-5 h-5" />
           Retete Personale

@@ -27,7 +27,11 @@ import {
   sidebarMenuButtonVariants,
 } from "./sidebarConstants";
 
-import { SidebarContext, useSidebar } from "./sidebarUtils";
+import {
+  SidebarContext,
+  type SidebarContextType,
+  useSidebar,
+} from "./sidebarUtils";
 
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
@@ -98,7 +102,7 @@ const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed";
 
-    const contextValue = React.useMemo<SidebarContext>(
+    const contextValue = React.useMemo<SidebarContextType>(
       () => ({
         state,
         open,

@@ -6,10 +6,15 @@ import { checkBackendHealth } from '@/lib/strapi';
 export function useWakeUpStatus() {
   const { state, startWakeUp, completeWakeUp, setUsingMockData, rotateMessage } = useWakeUpContext();
   const messageIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const messageIndexRef = useRef(state.messageIndex);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const healthCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const loggedProgressRef = useRef<Set<number>>(new Set()); // Track logged progress
   const hasStartedCountdownRef = useRef(false);
+
+  useEffect(() => {
+    messageIndexRef.current = state.messageIndex;
+  }, [state.messageIndex]);
 
   // Message rotation effect
   // Note: depend only on isWakingUp and rotateMessage to avoid re-creating the interval
@@ -24,8 +29,8 @@ export function useWakeUpStatus() {
     }
 
     // Initialize index from state.messageIndex if present, otherwise randomize
-    let index = (typeof state.messageIndex === 'number' && state.messageIndex >= 0)
-      ? state.messageIndex
+    let index = (typeof messageIndexRef.current === 'number' && messageIndexRef.current >= 0)
+      ? messageIndexRef.current
       : Math.floor(Math.random() * wakeUpMessages.length);
 
     // Ensure there's an initial message immediately

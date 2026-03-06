@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Plus, ExternalLink, Home } from "lucide-react";
 import { Header } from "@/components/Header";
 import { ExternalRecipeCard } from "@/components/ExternalRecipeCard";
@@ -9,6 +9,8 @@ import { isAccessGranted } from "@/lib/access";
 
 export default function ExternalRecipesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isExternal = location.pathname.startsWith("/external-recipes");
   const [items, setItems] = useState<ExternalRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,7 +25,7 @@ export default function ExternalRecipesPage() {
         setItems(data);
       })
       .finally(() => {
-        if (!mounted) setLoading(false);
+        if (mounted) setLoading(false);
       });
 
     return () => {
@@ -100,15 +102,27 @@ export default function ExternalRecipesPage() {
                 Colectie de retete delicioase pentru orice ocazie
               </p>
 
-              {/* Navigation Buttons - swapped for external page */}
+              {/* Navigation Buttons - set active based on current route */}
               <div className="flex justify-center gap-4 mb-8">
-                <Button asChild size="lg" className="gap-2">
+                {/* move useLocation to component top-level to satisfy Rules of Hooks */}
+                {/* `location` and `isExternal` are defined above the returned JSX */}
+                <Button
+                  asChild
+                  size="lg"
+                  variant={isExternal ? "outline" : undefined}
+                  className="gap-2"
+                >
                   <Link to="/">
                     <Home className="w-5 h-5" />
                     Retete Personale
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="gap-2">
+                <Button
+                  asChild
+                  size="lg"
+                  variant={isExternal ? undefined : "outline"}
+                  className="gap-2"
+                >
                   <Link to="/external-recipes">
                     <ExternalLink className="w-5 h-5" />
                     Retete Externe
