@@ -35,8 +35,9 @@ These steps will get a complete local dev environment running: frontend (this re
 ### 1 Clone & install
 
 ```bash
-git clone https://github.com/adrianmaciuc/my-creative-spark.git
-cd my-creative-spark
+# Clone your repo (example):
+git clone <your-repo-url>
+cd <your-repo-folder>
 npm install
 ```
 
@@ -54,7 +55,7 @@ Run the frontend dev server:
 
 ```bash
 npm run dev
-# Open http://localhost:5173 (Vite will show the exact port)
+# Open http://localhost:8080 (this project config uses port 8080)
 ```
 
 Behavior notes:
@@ -79,7 +80,22 @@ npx create-strapi@latest backend
 ```bash
 cd backend
 npm run develop
-# Strapi dev runs at http://localhost:1337 by default
+# Strapi dev runs at http://localhost:1337 by default (see backend config)
+```
+
+### Run both locally
+
+Start the backend first, then the frontend so the Vite app can reach the Strapi API:
+
+```bash
+# in one terminal: start Strapi backend
+cd backend && npm install && npm run develop
+
+# in another terminal: start frontend
+cd frontend-retete && npm install && npm run dev
+
+# Frontend dev server: http://localhost:8080
+# Backend (Strapi) dev server: http://localhost:1337
 ```
 
 3. Create an admin user at `http://localhost:1337/admin`.

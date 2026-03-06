@@ -1,4 +1,7 @@
 import { SearchBar } from "./SearchBar";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Home } from "lucide-react";
 
 interface HeroProps {
   onSearch: (query: string) => void;
@@ -42,7 +45,7 @@ export function Hero({ onSearch, recipeCount }: HeroProps) {
             className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance"
             data-testid="hero-title"
           >
-            Retete delicioase
+            Retete Personale
             <span
               className="block text-primary"
               data-testid="hero-subtitle-highlight"
@@ -56,6 +59,22 @@ export function Hero({ onSearch, recipeCount }: HeroProps) {
           >
             Colectie de retete delicioase pentru orice ocazie
           </p>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-center gap-4 mb-8">
+            <Button asChild size="lg" className="gap-2">
+              <Link to="/">
+                <Home className="w-5 h-5" />
+                Retete Personale
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="gap-2">
+              <Link to="/external-recipes">
+                <ExternalLink className="w-5 h-5" />
+                Retete Externe
+              </Link>
+            </Button>
+          </div>
 
           <div
             className="flex justify-center mb-6"
@@ -84,5 +103,24 @@ export function Hero({ onSearch, recipeCount }: HeroProps) {
         </div>
       </div>
     </section>
+  );
+}
+
+export function HeroButtons() {
+  return (
+    <div className="flex justify-center gap-4 py-8">
+      <Button asChild size="lg" className="gap-2">
+        <Link to="/external-recipes">
+          <ExternalLink className="w-5 h-5" />
+          Retete Externe
+        </Link>
+      </Button>
+      <Button asChild variant="outline" size="lg" className="gap-2">
+        <Link to="/">
+          <Home className="w-5 h-5" />
+          Retete Personale
+        </Link>
+      </Button>
+    </div>
   );
 }
