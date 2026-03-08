@@ -1,7 +1,9 @@
 import { cva } from "class-variance-authority";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  // allow buttons to wrap on very small screens and constrain width so they don't overflow
+  // hide svg icons on very small screens to avoid button overflow; show them at `sm` and above
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 max-w-full min-w-0 [&_svg]:hidden sm:[&_svg]:inline-block",
   {
     variants: {
       variant: {
@@ -18,8 +20,10 @@ export const buttonVariants = cva(
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        // reduce horizontal padding on very small screens so large labels don't overflow
+        lg: "h-11 rounded-md px-6 sm:px-8",
+        // icon buttons should always show their svg
+        icon: "h-10 w-10 [&_svg]:inline-block",
       },
     },
     defaultVariants: {
