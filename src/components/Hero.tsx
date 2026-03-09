@@ -48,7 +48,7 @@ export function Hero({ onSearch, recipeCount }: HeroProps) {
             className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance"
             data-testid="hero-title"
           >
-            Retete Personale
+            Retete Delicioase
             <span
               className="block text-primary"
               data-testid="hero-subtitle-highlight"
